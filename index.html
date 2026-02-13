@@ -40,25 +40,57 @@
       /* Backdrop */
       .nav-backdrop {
         position: fixed; inset: 0; z-index: 40;
-        backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px);
-        background: rgba(0,0,0,0.08);
-        opacity: 0; pointer-events: none; transition: opacity 0.25s ease;
+        backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+        background: rgba(0,0,0,0.06);
+        opacity: 0; pointer-events: none;
+        transition: opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1);
       }
       .nav-backdrop.active { opacity: 1; pointer-events: auto; }
 
-      /* Mega menu container */
+      /* Mega menu container — positioned below nav-wrap */
       .mega-menu {
-        position: absolute; top: 100%; left: 50%;
-        transform: translateX(-50%) translateY(8px);
+        position: absolute; top: calc(100% + 12px); left: 50%;
+        transform: translateX(-50%) translateY(6px) scale(0.97);
+        transform-origin: top center;
         opacity: 0; pointer-events: none;
-        transition: opacity 0.2s ease, transform 0.2s ease;
+        filter: blur(4px);
+        transition: opacity 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+                    transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+                    filter 0.3s cubic-bezier(0.22, 1, 0.36, 1);
         z-index: 60;
       }
-      .mega-menu.active { opacity: 1; pointer-events: auto; transform: translateX(-50%) translateY(0); }
+      .mega-menu.active {
+        opacity: 1; pointer-events: auto;
+        transform: translateX(-50%) translateY(0) scale(1);
+        filter: blur(0);
+      }
 
-      /* Hover: only title + icon go sky */
-      .mega-item:hover .mega-icon { color: #0093d7; background-color: rgba(13, 139, 197, 0.05); border-color: rgba(11, 137, 196, 0.3); }
-      .mega-item:hover .mega-title { color: #0093d7; }
+      /* Hover: per-category colors, no transitions */
+      .mega-cat-ai .mega-item:hover .mega-icon { color: #7c3aed; background-color: rgba(124, 58, 237, 0.08); border-color: rgba(124, 58, 237, 0.45); }
+      .mega-cat-ai .mega-item:hover .mega-title { color: #7c3aed; }
+      .mega-cat-compute .mega-item:hover .mega-icon { color: #0284c7; background-color: rgba(2, 132, 199, 0.08); border-color: rgba(2, 132, 199, 0.45); }
+      .mega-cat-compute .mega-item:hover .mega-title { color: #0284c7; }
+      .mega-cat-storage .mega-item:hover .mega-icon { color: #d97706; background-color: rgba(217, 119, 6, 0.08); border-color: rgba(217, 119, 6, 0.45); }
+      .mega-cat-storage .mega-item:hover .mega-title { color: #d97706; }
+      .mega-cat-more .mega-item:hover .mega-icon { color: #059669; background-color: rgba(5, 150, 105, 0.08); border-color: rgba(5, 150, 105, 0.45); }
+      .mega-cat-more .mega-item:hover .mega-title { color: #059669; }
+      .mega-item, .mega-item * { transition: none !important; }
+
+      /* When menu is open, blur + fade everything except the active trigger */
+      .nav-trigger {
+        transition: opacity 0.3s ease, filter 0.3s ease;
+      }
+      .nav-trigger.dimmed {
+        opacity: 0.35;
+        filter: blur(1.5px);
+      }
+      .header-blurable {
+        transition: opacity 0.3s ease, filter 0.3s ease;
+      }
+      .header-blurable.dimmed {
+        opacity: 0.35;
+        filter: blur(1.5px);
+      }
 
       /* Nav pill (sliding highlight) */
       .nav-wrap { position: relative; }
@@ -181,14 +213,264 @@
         -webkit-font-smoothing: none;
         -moz-osx-font-smoothing: unset;
       }
+
+      /* ── Services section ── */
+      .services-card-wrap {
+        position: relative;
+        z-index: 2;
+      }
+      .services-card {
+        position: relative;
+        overflow: hidden;
+        background: #111;
+        border: 1px solid rgba(255,255,255,0.08);
+      }
+      /* Corner squares — rounded squares centered on each card corner */
+      .corner-mark {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        border-radius: 2px;
+        background: #555555;
+        z-index: 10;
+        pointer-events: none;
+        transform: translate(-50%, -50%);
+      }
+      .corner-mark.tl { top: 0; left: 0; }
+      .corner-mark.tr { top: 0; right: 0; transform: translate(50%, -50%); }
+      .corner-mark.bl { bottom: 0; left: 0; transform: translate(-50%, 50%); }
+      .corner-mark.br { bottom: 0; right: 0; transform: translate(50%, 50%); }
+      /* Dither overlay on the card */
+      .services-card::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg width='4' height='4' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23fff' fill-opacity='0.03'%3E%3Crect x='0' y='0' width='1' height='1'/%3E%3Crect x='2' y='2' width='1' height='1'/%3E%3C/g%3E%3C/svg%3E");
+        pointer-events: none;
+        z-index: 1;
+      }
+      /* Scanlines */
+      .services-card::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: repeating-linear-gradient(
+          to bottom,
+          transparent 0px,
+          transparent 2px,
+          rgba(255,255,255,0.015) 2px,
+          rgba(255,255,255,0.015) 3px
+        );
+        pointer-events: none;
+        z-index: 1;
+      }
+      .services-card > * { position: relative; z-index: 2; }
+
+      /* Service badges (non-interactive) */
+      .svc-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 14px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 500;
+        color: rgba(255,255,255,0.4);
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.06);
+        white-space: nowrap;
+      }
+
+      /* Dot grid background for panels */
+      .svc-panel-inner {
+        position: relative;
+        display: grid;
+        grid-template-columns: 1fr 1.4fr;
+        gap: 0;
+        min-height: 420px;
+        background-image: radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px);
+        background-size: 24px 24px;
+      }
+      @media (max-width: 768px) {
+        .svc-panel-inner { grid-template-columns: 1fr; min-height: auto; }
+      }
+
+      /* Left text column */
+      .svc-left {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        padding: 40px;
+        border-right: 1px solid rgba(255,255,255,0.05);
+      }
+      .svc-left h3 { font-size: 22px; font-weight: 700; color: #fff; line-height: 1.3; margin-bottom: 12px; }
+      .svc-left p { font-size: 14px; color: rgba(255,255,255,0.45); line-height: 1.6; margin-bottom: 24px; }
+      .svc-left .svc-cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 10px 20px;
+        border-radius: 8px;
+        border: 1px solid rgba(255,255,255,0.15);
+        color: #fff;
+        font-size: 14px;
+        font-weight: 500;
+        background: transparent;
+        cursor: pointer;
+        transition: background 0.2s, border-color 0.2s;
+        width: fit-content;
+        text-decoration: none;
+      }
+      .svc-cta:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.25); }
+
+      /* Right visual column */
+      .svc-right {
+        position: relative;
+        padding: 32px;
+        overflow: hidden;
+      }
+
+      /* Dashed visual boxes */
+      .vis-box {
+        position: absolute;
+        border: 2px dashed;
+        border-radius: 8px;
+      }
+      .vis-box.amber { border-color: rgba(245,158,11,0.5); background: rgba(245,158,11,0.08); }
+      .vis-box.sky { border-color: rgba(56,189,248,0.5); background: rgba(56,189,248,0.08); }
+      .vis-box.emerald { border-color: rgba(52,211,153,0.5); background: rgba(52,211,153,0.08); }
+      .vis-box.violet { border-color: rgba(167,139,250,0.5); background: rgba(167,139,250,0.08); }
+      .vis-box.rose { border-color: rgba(251,113,133,0.5); background: rgba(251,113,133,0.08); }
+
+      /* Cursor labels */
+      .cursor-label {
+        position: absolute;
+        display: flex;
+        align-items: flex-start;
+        gap: 4px;
+        pointer-events: none;
+        transition: top 2.5s cubic-bezier(0.4, 0, 0.2, 1), left 2.5s cubic-bezier(0.4, 0, 0.2, 1);
+        will-change: top, left;
+      }
+      .cursor-label .cursor-arrow {
+        width: 16px;
+        height: 20px;
+        flex-shrink: 0;
+        filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));
+      }
+      .cursor-label .label-text {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 9px;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        padding: 3px 8px;
+        border-radius: 4px;
+        white-space: nowrap;
+        margin-top: 14px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      }
+      .cursor-label.amber .cursor-arrow { color: #f59e0b; }
+      .cursor-label.amber .label-text { background: #f59e0b; color: #000; }
+      .cursor-label.emerald .cursor-arrow { color: #34d399; }
+      .cursor-label.emerald .label-text { background: #34d399; color: #000; }
+      .cursor-label.sky .cursor-arrow { color: #38bdf8; }
+      .cursor-label.sky .label-text { background: #38bdf8; color: #000; }
+
+      /* Code editor panel */
+      .code-editor {
+        position: absolute;
+        border-radius: 10px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(17,17,17,0.95);
+        overflow: hidden;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      }
+      .code-editor-tabs {
+        display: flex;
+        align-items: center;
+        gap: 0;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+        padding: 0 4px;
+      }
+      .code-editor-tab {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px;
+        padding: 8px 14px;
+        color: rgba(255,255,255,0.3);
+        border-bottom: 2px solid transparent;
+        white-space: nowrap;
+      }
+      .code-editor-tab.active {
+        color: rgba(255,255,255,0.7);
+        border-bottom-color: rgba(255,255,255,0.3);
+      }
+      .code-editor-body {
+        padding: 14px 16px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        line-height: 1.7;
+        color: rgba(255,255,255,0.45);
+        white-space: pre;
+        overflow: hidden;
+      }
+      .code-editor-body .kw { color: rgba(198,120,221,0.8); }
+      .code-editor-body .ty { color: rgba(229,192,123,0.8); }
+      .code-editor-body .fn { color: rgba(97,175,239,0.8); }
+      .code-editor-body .str { color: rgba(152,195,121,0.8); }
+      .code-editor-body .cm { color: rgba(255,255,255,0.2); }
+
+      /* Blocky dither transition — behind the card, starts at card midpoint */
+      .block-transition {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 0;
+        display: grid;
+        grid-template-columns: repeat(var(--cols), 1fr);
+        grid-auto-rows: var(--block-size);
+        width: 100%;
+        line-height: 0;
+        font-size: 0;
+        pointer-events: none;
+      }
+      .block-transition .bt-cell {
+        width: 100%;
+        aspect-ratio: 1;
+        border-radius: var(--cell-radius, 4px);
+      }
+
+      /* Cookie banner — bottom left, smooth slide-up + fade */
+      .cookie-banner {
+        position: fixed;
+        bottom: 1.25rem;
+        left: 1.25rem;
+        z-index: 50;
+        max-width: 360px;
+        padding: 1rem 1.25rem;
+        border-radius: 12px;
+        background: rgba(26, 26, 26, 0.94);
+        -webkit-backdrop-filter: blur(12px);
+        backdrop-filter: blur(12px);
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.06);
+        transform: translateY(120%);
+        opacity: 0;
+        visibility: hidden;
+        transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s ease, visibility 0.4s;
+      }
+      .cookie-banner.visible {
+        transform: translateY(0);
+        opacity: 1;
+        visibility: visible;
+      }
     </style>
   </head>
 
   <body class="bg-gray-50 text-black">
-    <div class="banner-dither relative m-1 rounded-md isolate flex items-center gap-x-6 overflow-hidden px-6 py-2.5 after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-white/10 sm:px-3.5 sm:before:flex-1">
+    <div class="hidden banner-dither relative m-1 rounded-md isolate flex items-center gap-x-6 overflow-hidden px-6 py-2.5 after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-white/10 sm:px-3.5 sm:before:flex-1">
         <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
           <p class="text-sm/6 text-gray-100">
-            <strong class="font-semibold">HeliaCon 2026</strong><svg viewBox="0 0 2 2" aria-hidden="true" class="mx-2 inline size-0.5 fill-current"><circle r="1" cx="1" cy="1" /></svg>Join us in London from April 7 – 9 to see what’s coming next.
+            <span class="font-semibold">News:</span> Altare raises $32m to build the future of cloud hosting.
           </p>
         </div>
         <div class="flex flex-1 justify-end">
@@ -205,29 +487,30 @@
 
     <!-- Header -->
     <header
-      class="sticky top-0 z-50 w-full"
+      id="mainHeader"
+      class="bg-gray-50/70 backdrop-blur-sm sticky top-2 m-4 z-50 rounded-xl transition-[background-color,backdrop-filter,box-shadow] duration-300"
     >
-      <div class="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between relative">
+      <div class="max-w-7xl mx-auto px-14 py-7 flex items-center justify-between relative">
         <!-- Logo -->
-        <div class="flex items-center gap-2.5 w-40">
+        <div class="header-blurable flex items-center gap-2.5 w-40">
           <span class="logo-shimmer hover:scale-110 transition cursor-pointer">
             <img
-              src="https://i.ibb.co/k2nrjcB7/ETHER-2026-02-11-T000214-233.png"
-              class="h-6 w-6 invert"
+              src="https://i.ibb.co/9HWsfwZR/Ether-2026-02-12-T142546-393.png"
+              class="h-8 w-auto invert"
               alt=""
             />
           </span>
         </div>
 
         <!-- Center nav -->
-        <nav class="hidden md:flex items-center justify-center text-[13.5px] font-medium absolute left-0 right-0 inset-y-0 pointer-events-none">
-          <div class="nav-wrap flex items-center gap-8 pointer-events-auto">
+        <nav class="hidden md:flex items-center justify-center text-[15.5px] font-medium absolute left-0 right-0 inset-y-0 pointer-events-none">
+          <div class="nav-wrap flex items-center gap-8 pointer-events-auto" style="position:relative">
             <span class="nav-pill hidden" id="navPill" aria-hidden="true"></span>
             <div class="nav-trigger" id="productTrigger">
               <span class="flex items-center gap-1">
                 Product
-                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" class="mt-px opacity-50">
-                  <path d="M2.5 4L5 6.5L7.5 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" class="ml-1 h-4 w-auto shrink-0 text-inherit opacity-50">
+                  <path d="M5.8335 12.5002L10.0002 16.6668L14.1668 12.5002M5.8335 7.50016L10.0002 3.3335L14.1668 7.50016" stroke="currentColor" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
               </span>
             </div>
@@ -235,155 +518,136 @@
             <a href="#" class="nav-trigger">Pricing</a>
             <a href="#" class="nav-trigger">Documentation</a>
             <a href="#" class="nav-trigger">Blog</a>
+
+            <!-- Mega Menu -->
+            <div class="mega-menu" id="megaMenu">
+              <div class="bg-gray-50 rounded-md border border-black/10 p-2.5 w-[920px]">
+                <div class="grid grid-cols-4 gap-4">
+
+                  <!-- AI -->
+                  <div class="mega-cat-ai border border-black/8 bg-gray-100 rounded p-4">
+                    <div class="text-[12px] font-medium text-gray-400 mb-3 pl-0.5">AI</div>
+                    <div class="flex flex-col gap-1">
+                      <a href="#" class="mb-2 mega-item flex items-center gap-3 rounded-md bg-transparent no-underline cursor-pointer">
+                        <div class="mega-icon size-9 rounded-md border border-dashed border-black/12 flex items-center justify-center shrink-0 text-gray-400">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 0 1 .865-.501 48.172 48.172 0 0 0 3.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z"/></svg>
+                        </div>
+                        <div>
+                          <div class="mega-title text-[14px] font-medium text-gray-900 leading-tight">Chat with Arc</div>
+                          <div class="text-[11.5px] text-gray-400 leading-snug mt-0.5">Your personal assistant</div>
+                        </div>
+                      </a>
+                      <a href="#" class="mb-2 mega-item flex items-center gap-3 rounded-md bg-transparent no-underline cursor-pointer">
+                        <div class="mega-icon size-9 rounded-md border border-dashed border-black/12 flex items-center justify-center shrink-0 text-gray-400">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.25 6.75L22.5 12l-5.25 5.25M6.75 17.25L1.5 12l5.25-5.25M14.25 3.75l-4.5 16.5"/></svg>
+                        </div>
+                        <div>
+                          <div class="mega-title text-[14px] font-medium text-gray-900 leading-tight">Arc Code</div>
+                          <div class="text-[11.5px] text-gray-400 leading-snug mt-0.5">A vibe-coding tool</div>
+                        </div>
+                      </a>
+                      <a href="#" class="mega-item flex items-center gap-3 rounded-md bg-transparent no-underline cursor-pointer">
+                        <div class="mega-icon size-9 rounded-md border border-dashed border-black/12 flex items-center justify-center shrink-0 text-gray-400">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z"/></svg>
+                        </div>
+                        <div>
+                          <div class="mega-title text-[14px] font-medium text-gray-900 leading-tight">AI Studio</div>
+                          <div class="text-[11.5px] text-gray-400 leading-snug mt-0.5">Arc agents & API</div>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+
+                  <!-- Compute -->
+                  <div class="mega-cat-compute border border-black/8 bg-gray-100 rounded p-4">
+                    <div class="text-[12px] font-medium text-gray-400 mb-3 pl-0.5">Compute</div>
+                    <div class="flex flex-col gap-2">
+                      <a href="#" class="mb-2 mega-item flex items-center gap-3 rounded-md bg-transparent no-underline cursor-pointer">
+                        <div class="mega-icon size-9 rounded-md border border-dashed border-black/12 flex items-center justify-center shrink-0 text-gray-400">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.75 17.25v-.228a4.5 4.5 0 0 0-.12-1.03l-2.268-9.64a3.375 3.375 0 0 0-3.285-2.602H7.923a3.375 3.375 0 0 0-3.285 2.602l-2.268 9.64a4.5 4.5 0 0 0-.12 1.03v.228m19.5 0a3 3 0 0 1-3 3H5.25a3 3 0 0 1-3-3m19.5 0a3 3 0 0 0-3-3H5.25a3 3 0 0 0-3 3m16.5 0h.008v.008h-.008v-.008zm-3 0h.008v.008h-.008v-.008z"/></svg>
+                        </div>
+                        <div>
+                          <div class="mega-title text-[14px] font-medium text-gray-900 leading-tight">Server Hosting</div>
+                          <div class="text-[11.5px] text-gray-400 leading-snug mt-0.5">Free cloud hosting</div>
+                        </div>
+                      </a>
+                      <a href="https://na1.host" target="_blank" class="mega-item flex items-center gap-3 rounded-md bg-transparent no-underline cursor-pointer">
+                        <div class="mega-icon size-9 rounded-md border border-dashed border-black/12 flex items-center justify-center shrink-0 text-gray-400">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5.25 14.25h13.5m-13.5 0a3 3 0 0 1-3-3m3 3a3 3 0 1 0 0 6h13.5a3 3 0 1 0 0-6m-16.5-3a3 3 0 0 1 3-3h13.5a3 3 0 0 1 3 3m-19.5 0a4.5 4.5 0 0 1 .9-2.7L5.737 5.1a3.375 3.375 0 0 1 2.7-1.35h7.126c1.062 0 2.062.5 2.7 1.35l2.587 3.45a4.5 4.5 0 0 1 .9 2.7m0 0a3 3 0 0 1-3 3m0 3h.008v.008h-.008v-.008Zm0-6h.008v.008h-.008v-.008Zm-3 6h.008v.008h-.008v-.008Zm0-6h.008v.008h-.008v-.008Z"/></svg>
+                        </div>
+                        <div>
+                          <div class="mega-title text-[14px] font-medium text-gray-900 leading-tight">NA1</div>
+                          <div class="text-[11.5px] text-gray-400 leading-snug mt-0.5">Game server hosting</div>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+
+                  <!-- Storage -->
+                  <div class="mega-cat-storage border border-black/8 bg-gray-100 rounded p-4">
+                    <div class="text-[12px] font-medium text-gray-400 mb-3 pl-0.5">Storage</div>
+                    <div class="flex flex-col gap-2">
+                      <a href="#" class="mb-2 mega-item flex items-center gap-3 rounded-md bg-transparent no-underline cursor-pointer">
+                        <div class="mega-icon size-9 rounded-md border border-dashed border-black/12 flex items-center justify-center shrink-0 text-gray-400">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5.25 7.5A2.25 2.25 0 0 1 7.5 5.25h9a2.25 2.25 0 0 1 2.25 2.25v9a2.25 2.25 0 0 1-2.25 2.25h-9A2.25 2.25 0 0 1 5.25 16.5v-9z"/><path d="M8.25 2.25v3M15.75 2.25v3M8.25 18.75v3M15.75 18.75v3M2.25 8.25h3M2.25 15.75h3M18.75 8.25h3M18.75 15.75h3"/></svg>
+                        </div>
+                        <div>
+                          <div class="mega-title text-[14px] font-medium text-gray-900 leading-tight">KV1</div>
+                          <div class="text-[11.5px] text-gray-400 leading-snug mt-0.5">Key-value database</div>
+                        </div>
+                      </a>
+                      <a href="#" class="mega-item flex items-center gap-3 rounded-md bg-transparent no-underline cursor-pointer">
+                        <div class="mega-icon size-9 rounded-md border border-dashed border-black/12 flex items-center justify-center shrink-0 text-gray-400">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 5.625c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125"/></svg>
+                        </div>
+                        <div>
+                          <div class="mega-title text-[14px] font-medium text-gray-900 leading-tight">DB1</div>
+                          <div class="text-[11.5px] text-gray-400 leading-snug mt-0.5">Managed Postgres</div>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+
+                  <!-- More -->
+                  <div class="mega-cat-more border border-black/8 bg-gray-100 rounded p-4">
+                    <div class="text-[12px] font-medium text-gray-400 mb-3 pl-0.5">More from Altare</div>
+                    <div class="flex flex-col gap-2">
+                      <a href="#" class="mb-2 mega-item flex items-center gap-3 rounded-md bg-transparent no-underline cursor-pointer">
+                        <div class="mega-icon size-9 rounded-md border border-dashed border-black/12 flex items-center justify-center shrink-0 text-gray-400">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15A2.25 2.25 0 0 0 2.25 6.75v10.5A2.25 2.25 0 0 0 4.5 19.5z"/></svg>
+                        </div>
+                        <div>
+                          <div class="mega-title text-[14px] font-medium text-gray-900 leading-tight">Altare Pay</div>
+                          <div class="text-[11.5px] text-gray-400 leading-snug mt-0.5">Wallet & payments</div>
+                        </div>
+                      </a>
+                      <a href="https://github.com/altaresoftware" target="_blank" class="mega-item flex items-center gap-3 rounded-md bg-transparent no-underline cursor-pointer">
+                        <div class="mega-icon size-9 rounded-md border border-dashed border-black/12 flex items-center justify-center shrink-0 text-gray-400">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+                        </div>
+                        <div>
+                          <div class="mega-title text-[14px] font-medium text-gray-900 leading-tight">Open Source</div>
+                          <div class="text-[11.5px] text-gray-400 leading-snug mt-0.5">GitHub</div>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
           </div>
         </nav>
 
         <!-- Right side -->
-        <div class="flex items-center gap-4 w-40 justify-end">
-          <a href="#" class="text-[13px] font-medium text-gray-600 hover:text-black transition-colors">Log in</a>
+        <div class="header-blurable flex items-center gap-4 w-60 justify-end">
+          <a href="#" class="text-[15.5px] font-medium text-gray-600 hover:text-black transition-colors">Log in</a>
           <a
             href="#"
-            class="px-4 py-1.5 rounded-lg bg-black text-white text-[13px] font-medium hover:bg-gray-800 transition-colors"
+            class="px-4 py-1.5 rounded-lg bg-black text-white text-[15.5px] font-medium hover:bg-gray-800 transition-colors"
           >
             Try for free
           </a>
-        </div>
-      </div>
-
-      <!-- Mega Menu -->
-      <div class="mega-menu" id="megaMenu">
-        <div class="bg-gray-50 rounded-lg border border-black/10 shadow-xs p-2 w-[820px]">
-          <div class="grid grid-cols-4 gap-3">
-
-            <!-- AI -->
-            <div class="border border-black/8 bg-gray-100 rounded p-4">
-              <div class="text-[11px] font-medium text-gray-400 mb-3 pl-0.5">AI</div>
-              <div class="flex flex-col gap-1">
-                <a href="#" class="mb-2 mega-item flex items-center gap-3 rounded-md bg-transparent no-underline cursor-pointer">
-                  <div class="mega-icon size-8 rounded border border-dashed border-black/12 flex items-center justify-center shrink-0 text-gray-400">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <div class="mega-title text-[13px] font-medium text-gray-900 leading-tight transition-colors">Chat with Arc</div>
-                    <div class="text-[11px] text-gray-400 leading-snug mt-px">AI chat interface</div>
-                  </div>
-                </a>
-                <a href="#" class="mb-2 mega-item flex items-center gap-3 rounded-md bg-transparent no-underline cursor-pointer">
-                  <div class="mega-icon size-8 rounded border border-dashed border-black/12 flex items-center justify-center shrink-0 text-gray-400">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                      <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <div class="mega-title text-[13px] font-medium text-gray-900 leading-tight transition-colors">Arc Code</div>
-                    <div class="text-[11px] text-gray-400 leading-snug mt-px">CLI coding tool</div>
-                  </div>
-                </a>
-                <a href="#" class="mega-item flex items-center gap-3 rounded-md bg-transparent no-underline cursor-pointer">
-                  <div class="mega-icon size-8 rounded border border-dashed border-black/12 flex items-center justify-center shrink-0 text-gray-400">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <div class="mega-title text-[13px] font-medium text-gray-900 leading-tight transition-colors">AI Studio</div>
-                    <div class="text-[11px] text-gray-400 leading-snug mt-px">API for Arc</div>
-                  </div>
-                </a>
-              </div>
-            </div>
-
-            <!-- Compute -->
-            <div class="border border-black/8 bg-gray-100 rounded p-4">
-              <div class="text-[11px] font-medium text-gray-400 mb-3 pl-0.5">Compute</div>
-              <div class="flex flex-col gap-2">
-                <a href="#" class="mb-2 mega-item flex items-center gap-3 rounded-md bg-transparent no-underline cursor-pointer">
-                  <div class="mega-icon size-8 rounded border border-dashed border-black/12 flex items-center justify-center shrink-0 text-gray-400">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                      <rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/>
-                      <circle cx="6" cy="6" r="1"/><circle cx="6" cy="18" r="1"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <div class="mega-title text-[13px] font-medium text-gray-900 leading-tight transition-colors">Server Hosting</div>
-                    <div class="text-[11px] text-gray-400 leading-snug mt-px">Free cloud hosting</div>
-                  </div>
-                </a>
-                <a href="https://na1.host" target="_blank" class="mega-item flex items-center gap-3 rounded-md bg-transparent no-underline cursor-pointer">
-                  <div class="mega-icon size-8 rounded border border-dashed border-black/12 flex items-center justify-center shrink-0 text-gray-400">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M6 3h12l4 6-10 13L2 9z"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <div class="mega-title text-[13px] font-medium text-gray-900 leading-tight transition-colors">NA1</div>
-                    <div class="text-[11px] text-gray-400 leading-snug mt-px">Game server hosting</div>
-                  </div>
-                </a>
-              </div>
-            </div>
-
-            <!-- Storage -->
-            <div class="border border-black/8 bg-gray-100 rounded p-4">
-              <div class="text-[11px] font-medium text-gray-400 mb-3 pl-0.5">Storage</div>
-              <div class="flex flex-col gap-2">
-                <a href="#" class="mb-2 mega-item flex items-center gap-3 rounded-md bg-transparent no-underline cursor-pointer">
-                  <div class="mega-icon size-8 rounded border border-dashed border-black/12 flex items-center justify-center shrink-0 text-gray-400">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M4 7V4h16v3"/><path d="M4 20v-3h16v3"/><path d="M9 11h6"/><path d="M12 11v4"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <div class="mega-title text-[13px] font-medium text-gray-900 leading-tight transition-colors">KV1</div>
-                    <div class="text-[11px] text-gray-400 leading-snug mt-px">Key-value database</div>
-                  </div>
-                </a>
-                <a href="#" class="mega-item flex items-center gap-3 rounded-md bg-transparent no-underline cursor-pointer">
-                  <div class="mega-icon size-8 rounded border border-dashed border-black/12 flex items-center justify-center shrink-0 text-gray-400">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                      <ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <div class="mega-title text-[13px] font-medium text-gray-900 leading-tight transition-colors">DB1</div>
-                    <div class="text-[11px] text-gray-400 leading-snug mt-px">Managed Postgres</div>
-                  </div>
-                </a>
-              </div>
-            </div>
-
-            <!-- More -->
-            <div class="border border-black/8 bg-gray-100 rounded p-4">
-              <div class="text-[11px] font-medium text-gray-400 mb-3 pl-0.5">More from Altare</div>
-              <div class="flex flex-col gap-2">
-                <a href="#" class="mb-2 mega-item flex items-center gap-3 rounded-md bg-transparent no-underline cursor-pointer">
-                  <div class="mega-icon size-8 rounded border border-dashed border-black/12 flex items-center justify-center shrink-0 text-gray-400">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                      <rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <div class="mega-title text-[13px] font-medium text-gray-900 leading-tight transition-colors">Altare Pay</div>
-                    <div class="text-[11px] text-gray-400 leading-snug mt-px">Wallet & payments</div>
-                  </div>
-                </a>
-                <a href="https://github.com/altaresoftware" target="_blank" class="mega-item flex items-center gap-3 rounded-md bg-transparent no-underline cursor-pointer">
-                  <div class="mega-icon size-8 rounded border border-dashed border-black/12 flex items-center justify-center shrink-0 text-gray-400">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <div class="mega-title text-[13px] font-medium text-gray-900 leading-tight transition-colors">Open Source</div>
-                    <div class="text-[11px] text-gray-400 leading-snug mt-px">GitHub</div>
-                  </div>
-                </a>
-              </div>
-            </div>
-
-          </div>
         </div>
       </div>
     </header>
@@ -426,26 +690,115 @@
       </div>
     </main>
 
-    <div class="bg-gradient-to-b max-w-6xl mx-auto mt-8 from-gray-50 to-amber-200 border border-amber-200 rounded-lg p-4">
-        <div class="flex">
-          <div class="shrink-0">
-            <!-- Icon -->
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-5 text-amber-400 mt-0.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
-              </svg>              
-            <!-- End Icon -->
-          </div>
-          <div class="ms-3">
-            <h3 id="hs-bordered-success-style-label" class="text-black font-semibold">
-              This is a work in progress.
-            </h3>
-            <p class="text-sm text-black/60">
-              The new site isn't ready yet. &copy; 2026 Altare, Inc & Altare AI LLC.
-            </p>
-          </div>
+    <!-- Services -->
+    <section class="px-6 pt-32 pb-32 text-center mt-6" style="position:relative;overflow:visible;background: linear-gradient(to bottom, #f9fafb 0%, #e5e5e5 40%, #171717 60%, #171717 100%);">
+      <div class="max-w-6xl mx-auto">
+        <!-- Heading -->
+        <div class="flex flex-col items-center mb-12">
+          <h2 class="text-4xl font-bold tracking-tight">The cloud that <span class="bg-gradient-to-t from-emerald-50 to-emerald-200 text-emerald-900 border border-emerald-200 px-2 py-0.5 rounded-lg">just works.</span></h2>
+          <p class="text-lg mt-4 text-gray-600">Bring your idea. We'll host it, scale it, and make it work for you.</p>
         </div>
+
+        <!-- Card -->
+        <div class="services-card-wrap">
+          <!-- Corner marks — outside the card's overflow:hidden -->
+          <div class="corner-mark tl"></div>
+          <div class="corner-mark tr"></div>
+          <div class="corner-mark bl"></div>
+          <div class="corner-mark br"></div>
+
+        <div class="services-card outline outline-1.5 outline-offset-2 outline-[#555555] text-left border border-white/5">
+          <!-- Badge bar -->
+          <div class="flex items-center justify-center gap-2 px-8 pt-4 mb-3 pb-1 flex-wrap">
+            <div class="flex items-center justify-center gap-2 bg-gradient-to-t from-transparent to-[#2a2a2a] backdrop-blur-lg rounded-lg p-2">
+            <span class="bg-white/10 backdrop-blur-lg rounded-l-lg rounded-md px-3 py-1.5 text-sm text-white font-medium">
+              AI Agents
+            </span>
+            <span class="bg-white/10 backdrop-blur-lg rounded-md px-3 py-1.5 text-sm text-white font-medium">
+              Cloud
+            </span>
+            <span class="bg-white/10 backdrop-blur-lg rounded-md px-3 py-1.5 text-sm text-white font-medium">
+              Storage
+            </span>
+            <span class="bg-white/10 backdrop-blur-lg rounded-md px-3 py-1.5 text-sm text-white font-medium">
+              Altare Edge
+            </span>
+            <span class="bg-white/10 backdrop-blur-lg rounded-l-md rounded-r-lg px-3 py-1.5 text-sm text-white font-medium">
+              Payments
+            </span>
+          </div>
+          </div>
+
+          <!-- Single panel -->
+          <div class="svc-panel-inner" id="svcVisual">
+            <div class="svc-left">
+              <h3>You don't even need to be a developer to get started.</h3>
+              <p>Deploy a game server instead. Or a simple project off GitHub. Or ask Arc - and start building something new.</p>
+              <a href="#" class="svc-cta">
+                Learn more
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+              </a>
+            </div>
+            <div class="svc-right" id="svcRight">
+              <!-- Dashed visual boxes -->
+              <div class="vis-box amber" style="width:100px;height:64px;top:40px;left:60px;"></div>
+              <div class="vis-box amber" style="width:72px;height:56px;top:130px;left:20px;"></div>
+              <div class="vis-box emerald" style="width:56px;height:56px;top:200px;left:80px;"></div>
+              <!-- Animated cursors — modern pointer style -->
+              <div class="cursor-label amber" id="cursorArc" style="top:55px;left:110px;">
+                <svg class="cursor-arrow" viewBox="0 0 16 20" fill="none"><path d="M1 1v16.5l4.25-4.25L9.5 19l2.5-1.5L7.75 11.75 13 10.5z" fill="currentColor" stroke="#000" stroke-width="0.8" stroke-linejoin="round"/></svg>
+                <span class="label-text">ARC</span>
+              </div>
+              <div class="cursor-label emerald" id="cursorYou" style="top:200px;left:95px;">
+                <svg class="cursor-arrow" viewBox="0 0 16 20" fill="none"><path d="M1 1v16.5l4.25-4.25L9.5 19l2.5-1.5L7.75 11.75 13 10.5z" fill="currentColor" stroke="#000" stroke-width="0.8" stroke-linejoin="round"/></svg>
+                <span class="label-text">YOU</span>
+              </div>
+              <!-- Code editor -->
+              <div class="code-editor" style="top:150px;right:0;width:370px;bottom:0;">
+                <div class="code-editor-tabs">
+                  <div class="code-editor-tab active">agent.ts</div>
+                  <div class="code-editor-tab">deploy.ts</div>
+                  <div class="code-editor-tab">config.ts</div>
+                </div>
+                <div class="code-editor-body"><span class="kw">import</span> { <span class="ty">ArcAgent</span>, <span class="ty">Context</span> } <span class="kw">from</span> <span class="str">"@altare/arc"</span>
+<span class="kw">import type</span> { <span class="ty">Message</span>, <span class="ty">Tool</span> } <span class="kw">from</span> <span class="str">"@altare/arc/types"</span>
+<span class="kw">import type</span> { <span class="ty">DeployConfig</span> } <span class="kw">from</span> <span class="str">"@altare/cloud/deploy"</span>
+
+<span class="cm">// Configure the agent for this project</span>
+<span class="kw">type</span> <span class="ty">AgentState</span> = {
+    context: <span class="ty">Context</span>;
+    tools: <span class="ty">Tool</span>[];
+};</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        </div><!-- /services-card-wrap -->
       </div>
-      <!-- End Alert -->
+      <!-- Blocky dither transition — sits behind card, starts at card midpoint -->
+      <div class="block-transition" id="blockTransition" aria-hidden="true"></div>
+    </section>
+
+    <!-- Dark section below -->
+    <section class="bg-neutral-900 px-6 py-32">
+      <div class="max-w-6xl mx-auto text-center">
+        <!-- placeholder for next content -->
+      </div>
+    </section>
+
+    <!-- Cookie banner -->
+    <div id="cookieBanner" class="cookie-banner" role="dialog" aria-label="Cookie notice">
+      <p class="text-sm text-gray-200/95 leading-relaxed mb-3">
+        Altare uses cookies to improve your experience and analyze site traffic. By continuing, you accept our use of cookies.
+      </p>
+      <div class="flex flex-wrap items-center gap-2">
+        <button type="button" id="cookieAccept" class="cookie-accept rounded-lg bg-white/20 px-4 py-2 text-sm font-medium text-white hover:bg-white/30 focus:outline-none focus:ring-2 focus:ring-white/30 transition cursor-pointer hover:scale-110 focus:ring-offset-2 focus:ring-offset-[#1a1a1a]">
+          Accept
+        </button>
+        <a href="#" class="text-sm text-zinc-300 ml-2 hover:text-zinc-200 transition-colors duration-200">Learn more</a>
+      </div>
+    </div>
 
     <!-- DITHER ENGINE — moiré interference -->
     <script>
@@ -739,36 +1092,191 @@
       const productTrigger = document.getElementById('productTrigger');
       const megaMenu = document.getElementById('megaMenu');
       const navBackdrop = document.getElementById('navBackdrop');
+      const siblingTriggers = document.querySelectorAll('.nav-trigger:not(#productTrigger)');
+      const blurables = document.querySelectorAll('.header-blurable');
+      const mainHeader = document.getElementById('mainHeader');
       let menuOpen = false;
       let closeTimeout = null;
 
       function openMenu() {
         clearTimeout(closeTimeout);
         menuOpen = true;
+        // Kill header bg instantly — no transition on open
+        mainHeader.style.transition = 'none';
+        mainHeader.style.backgroundColor = 'transparent';
+        mainHeader.style.backdropFilter = 'none';
+        mainHeader.style.webkitBackdropFilter = 'none';
+        mainHeader.style.boxShadow = 'none';
         megaMenu.classList.add('active');
         navBackdrop.classList.add('active');
         productTrigger.classList.add('active');
+        siblingTriggers.forEach(el => el.classList.add('dimmed'));
+        blurables.forEach(el => el.classList.add('dimmed'));
+      }
+
+      function restoreHeader() {
+        menuOpen = false;
+        megaMenu.classList.remove('active');
+        navBackdrop.classList.remove('active');
+        productTrigger.classList.remove('active');
+        siblingTriggers.forEach(el => el.classList.remove('dimmed'));
+        blurables.forEach(el => el.classList.remove('dimmed'));
+        // Restore header bg with transition on close
+        mainHeader.style.transition = '';
+        mainHeader.style.backgroundColor = '';
+        mainHeader.style.backdropFilter = '';
+        mainHeader.style.webkitBackdropFilter = '';
+        mainHeader.style.boxShadow = '';
       }
 
       function closeMenu() {
-        closeTimeout = setTimeout(() => {
-          menuOpen = false;
-          megaMenu.classList.remove('active');
-          navBackdrop.classList.remove('active');
-          productTrigger.classList.remove('active');
-        }, 150);
+        closeTimeout = setTimeout(restoreHeader, 150);
       }
 
       productTrigger.addEventListener('mouseenter', openMenu);
       productTrigger.addEventListener('mouseleave', closeMenu);
       megaMenu.addEventListener('mouseenter', () => { clearTimeout(closeTimeout); });
       megaMenu.addEventListener('mouseleave', closeMenu);
-      navBackdrop.addEventListener('click', () => {
-        menuOpen = false;
-        megaMenu.classList.remove('active');
-        navBackdrop.classList.remove('active');
-        productTrigger.classList.remove('active');
-      });
+      navBackdrop.addEventListener('click', restoreHeader);
+
+      // --- ANIMATED CURSORS ---
+      (function() {
+        const cursorArc = document.getElementById('cursorArc');
+        const cursorYou = document.getElementById('cursorYou');
+        const svcRight = document.getElementById('svcRight');
+        if (!cursorArc || !cursorYou || !svcRight) return;
+
+        // Waypoints each cursor visits (top, left) — positioned over the boxes
+        const arcWaypoints = [
+          { top: 50, left: 110 },   // hover over box 1
+          { top: 35, left: 80 },    // top of box 1
+          { top: 65, left: 140 },   // right of box 1
+          { top: 155, left: 250 },  // over to code editor
+          { top: 180, left: 300 },  // inside code editor
+          { top: 125, left: 45 },   // move to box 2
+          { top: 140, left: 70 },   // inside box 2
+          { top: 195, left: 100 },  // near box 3
+          { top: 210, left: 120 },  // on box 3
+        ];
+        const youWaypoints = [
+          { top: 200, left: 100 },  // over box 3
+          { top: 210, left: 120 },  // lower on box 3
+          { top: 190, left: 85 },   // left of box 3
+          { top: 125, left: 50 },   // up to box 2
+          { top: 135, left: 75 },   // inside box 2
+          { top: 50, left: 85 },    // up to box 1
+          { top: 60, left: 130 },   // right side box 1
+          { top: 160, left: 270 },  // over to code editor
+          { top: 220, left: 110 },  // back to box 3
+        ];
+
+        let arcIdx = 0;
+        let youIdx = 0;
+
+        function moveArc() {
+          const wp = arcWaypoints[arcIdx];
+          cursorArc.style.top = wp.top + 'px';
+          cursorArc.style.left = wp.left + 'px';
+          arcIdx = (arcIdx + 1) % arcWaypoints.length;
+        }
+        function moveYou() {
+          const wp = youWaypoints[youIdx];
+          cursorYou.style.top = wp.top + 'px';
+          cursorYou.style.left = wp.left + 'px';
+          youIdx = (youIdx + 1) % youWaypoints.length;
+        }
+
+        // Stagger the two cursors
+        setInterval(moveArc, 2800);
+        setTimeout(() => setInterval(moveYou, 3200), 1400);
+      })();
+
+      // --- BLOCK DITHER TRANSITION ---
+      (function() {
+        const container = document.getElementById('blockTransition');
+        const card = document.querySelector('.services-card');
+        const section = container?.parentElement;
+        if (!container || !card || !section) return;
+
+        // Position: starts a bit above card midpoint
+        function positionDither() {
+          const sectionRect = section.getBoundingClientRect();
+          const cardRect = card.getBoundingClientRect();
+          const cardMid = cardRect.top + cardRect.height * 0.2 - sectionRect.top;
+          container.style.top = cardMid + 'px';
+          container.style.bottom = 'auto';
+        }
+        positionDither();
+        window.addEventListener('resize', positionDither);
+
+        const BLOCK = 16;
+        const cols = Math.ceil(window.innerWidth / BLOCK);
+        const rows = 22;
+
+        container.style.setProperty('--cols', cols);
+        container.style.setProperty('--block-size', BLOCK + 'px');
+
+        // Top = gray-200 (light bg), bottom = neutral-900 (dark section)
+        const topRGB  = [229, 229, 229];
+        const botRGB  = [23, 23, 23];
+
+        function lerp(a, b, t) { return Math.round(a + (b - a) * t); }
+
+        let seed = 42;
+        function rand() { seed = (seed * 16807 + 0) % 2147483647; return (seed - 1) / 2147483646; }
+
+        const frag = document.createDocumentFragment();
+        for (let r = 0; r < rows; r++) {
+          const progress = r / (rows - 1);
+          // Radius: fully rounded at top, 0 at bottom (cells merge together)
+          const radius = Math.round((1 - progress) * 5);
+          for (let c = 0; c < cols; c++) {
+            const cell = document.createElement('div');
+            cell.className = 'bt-cell';
+
+            const edgeFade = 1 - Math.abs(progress - 0.5) * 1.4;
+            const jitter = (rand() - 0.5) * 0.45 * Math.max(0.15, edgeFade);
+            const t = Math.max(0, Math.min(1, progress + jitter));
+
+            const red   = lerp(topRGB[0], botRGB[0], t);
+            const green = lerp(topRGB[1], botRGB[1], t);
+            const blue  = lerp(topRGB[2], botRGB[2], t);
+            cell.style.backgroundColor = `rgb(${red},${green},${blue})`;
+            cell.style.setProperty('--cell-radius', radius + 'px');
+
+            frag.appendChild(cell);
+          }
+        }
+        container.appendChild(frag);
+      })();
+
+      // --- COOKIE BANNER ---
+      const COOKIE_CONSENT_KEY = 'altare-cookie-consent';
+      const cookieBanner = document.getElementById('cookieBanner');
+      const cookieAccept = document.getElementById('cookieAccept');
+
+      function hideCookieBanner() {
+        if (!cookieBanner) return;
+        cookieBanner.classList.remove('visible');
+        setTimeout(() => {
+          cookieBanner.style.display = 'none';
+        }, 450);
+      }
+
+      if (cookieBanner && cookieAccept) {
+        if (localStorage.getItem(COOKIE_CONSENT_KEY) === 'true') {
+          cookieBanner.style.display = 'none';
+        } else {
+          cookieBanner.style.display = 'block';
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => cookieBanner.classList.add('visible'));
+          });
+        }
+        cookieAccept.addEventListener('click', () => {
+          localStorage.setItem(COOKIE_CONSENT_KEY, 'true');
+          hideCookieBanner();
+        });
+      }
     </script>
   </body>
 </html>
